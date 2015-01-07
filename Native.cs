@@ -139,8 +139,8 @@ namespace LevelDB
         {
             string error;
             Native.leveldb_put(db, writeOptions,
-                               key, key.Length,
-                               value, value.Length, out error);
+                               key, (IntPtr) key.Length,
+                               value, (IntPtr) value.Length, out error);
             CheckError(error);
         }
         #endregion
@@ -153,14 +153,14 @@ namespace LevelDB
         public static void leveldb_delete(IntPtr db, IntPtr writeOptions, byte[] key, IntPtr keylen, out string error)
         {
             IntPtr errorPtr;
-            leveldb_delete(db, writeOptions, key, key.Length, out errorPtr);
+            leveldb_delete(db, writeOptions, key, (IntPtr) key.Length, out errorPtr);
             error = GetAndReleaseString(errorPtr);
         }
 
         public static void leveldb_delete(IntPtr db, IntPtr writeOptions, byte[] key)
         {
             string error;
-            leveldb_delete(db, writeOptions, key, key.Length, out error);
+            leveldb_delete(db, writeOptions, key, (IntPtr) key.Length, out error);
             CheckError(error);
         }
         #endregion
@@ -215,13 +215,13 @@ namespace LevelDB
         {
             IntPtr valueLength;
             string error;
-            var valuePtr = leveldb_get(db, readOptions, key, key.Length,
+            var valuePtr = leveldb_get(db, readOptions, key, (IntPtr) key.Length,
                                        out valueLength, out error);
             CheckError(error);
             if (valuePtr == IntPtr.Zero) {
                 return null;
             }
-            var value = new byte[valueLength];
+            var value = new byte[(int) valueLength];
             Marshal.Copy(valuePtr, value, 0, (int) valueLength);
             leveldb_free(valuePtr);
             return value;
@@ -292,8 +292,8 @@ namespace LevelDB
                                                  byte[] limitKey)
         {
             leveldb_compact_range(db,
-                                  startKey, startKey.Length,
-                                  limitKey, limitKey.Length);
+                                  startKey, (IntPtr) startKey.Length,
+                                  limitKey, (IntPtr) limitKey.Length);
         }
 #endregion
 
@@ -364,8 +364,8 @@ namespace LevelDB
                                                   byte[] value)
         {
             Native.leveldb_writebatch_put(writeBatch,
-                                          key, key.Length,
-                                          value, value.Length);
+                                          key, (IntPtr) key.Length,
+                                          value, (IntPtr) value.Length);
         }
 
         // extern void leveldb_writebatch_delete(leveldb_writebatch_t*, const char* key, size_t klen);
@@ -373,7 +373,7 @@ namespace LevelDB
         public static extern void leveldb_writebatch_delete(IntPtr writeBatch, byte[] key, IntPtr keylen);
         public static void leveldb_writebatch_delete(IntPtr writeBatch, byte[] key)
         {
-            leveldb_writebatch_delete(writeBatch, key, key.Length);
+            leveldb_writebatch_delete(writeBatch, key, (IntPtr) key.Length);
         }
 
         // TODO:
@@ -560,7 +560,7 @@ namespace LevelDB
         public static extern void leveldb_iter_seek(IntPtr iter, byte[] key, IntPtr keyLength);
         public static void leveldb_iter_seek(IntPtr iter, byte[] key)
         {
-            leveldb_iter_seek(iter, key, key.Length);
+            leveldb_iter_seek(iter, key, (IntPtr) key.Length);
         }
 
         // extern unsigned char leveldb_iter_valid(const leveldb_iterator_t*);
@@ -590,7 +590,7 @@ namespace LevelDB
             if (keyPtr == IntPtr.Zero) {
                 return null;
             }
-            var key = new byte[keyLength];
+            var key = new byte[(int) keyLength];
             Marshal.Copy(keyPtr, key, 0, (int) keyLength);
             return key;
         }
@@ -605,7 +605,7 @@ namespace LevelDB
             if (valuePtr == IntPtr.Zero) {
                 return null;
             }
-            var value = new byte[valueLength];
+            var value = new byte[(int) valueLength];
             Marshal.Copy(valuePtr, value, 0, (int) valueLength);
             return value;
         }
